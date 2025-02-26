@@ -8,11 +8,11 @@ variable "region" {
 }
 
 variable "db_name" {
-  description = "Unique name to assign to RDS instance"
+  description = "Unique name to assign to RDS instance."
   type        = string
 }
 
 variable "db_username" {
-  description = "RDS root username"
+  description = "RDS root username."
   type        = string
 }
