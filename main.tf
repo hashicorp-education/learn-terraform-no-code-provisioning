@@ -46,7 +46,7 @@ resource "aws_security_group" "rds" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["192.80.0.0/16"]
   }
 
   egress {
@@ -101,7 +101,6 @@ resource "aws_db_instance" "education" {
   parameter_group_name   = aws_db_parameter_group.education.name
   publicly_accessible    = true
   skip_final_snapshot    = true
-  storage_encrypted      = var.db_encrypted
 }
 
 resource "aws_ssm_parameter" "secret" {
