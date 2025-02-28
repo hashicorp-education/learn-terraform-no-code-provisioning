@@ -63,7 +63,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_db_parameter_group" "education" {
   name   = "${random_pet.random.id}-education"
-  family = "postgres15"
+  family = "postgres16"
 
   parameter {
     name  = "log_connections"
@@ -92,7 +92,7 @@ resource "aws_db_instance" "education" {
   allocated_storage      = 5
   apply_immediately      = true
   engine                 = "postgres"
-  engine_version         = "15"
+  engine_version         = "16"
   username               = var.db_username
   password_wo            = ephemeral.random_password.db_password.result
   password_wo_version    = local.db_password_version
