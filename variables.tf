@@ -16,3 +16,8 @@ variable "db_username" {
   description = "RDS root username."
   type        = string
 }
+
+variable "db_encrypted" {
+  description = "Encrypt the database storage"
+  type = bool
+}
