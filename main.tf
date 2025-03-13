@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 provider "aws" {
-  region = var.region
+  region = "us-east-2"
 
   default_tags {
     tags = {
@@ -55,10 +55,6 @@ resource "aws_security_group" "rds" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "${random_pet.random.id}-education_rds"
-  }
 }
 
 resource "aws_db_parameter_group" "education" {
@@ -75,17 +71,6 @@ resource "aws_db_parameter_group" "education" {
   }
 }
 
-ephemeral "random_password" "db_password" {
-  length  = 16
-  special = false
-}
-
-locals {
-  # Increment db_password_version to update the DB password and store the new
-  # password in SSM.
-  db_password_version = 1
-}
-
 resource "aws_db_instance" "education" {
   identifier             = "${var.db_name}-${random_pet.random.id}"
   instance_class         = "db.t3.micro"
@@ -94,8 +79,7 @@ resource "aws_db_instance" "education" {
   engine                 = "postgres"
   engine_version         = "16"
   username               = var.db_username
-  password_wo            = ephemeral.random_password.db_password.result
-  password_wo_version    = local.db_password_version
+  password               = var.db_password
   db_subnet_group_name   = aws_db_subnet_group.education.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   parameter_group_name   = aws_db_parameter_group.education.name
@@ -103,10 +87,3 @@ resource "aws_db_instance" "education" {
   skip_final_snapshot    = true
 }
 
-resource "aws_ssm_parameter" "secret" {
-  name             = "/education/database/${var.db_name}/password/master"
-  description      = "Password for RDS database."
-  type             = "SecureString"
-  value_wo         = ephemeral.random_password.db_password.result
-  value_wo_version = local.db_password_version
-}
