@@ -3,6 +3,12 @@
 
 provider "aws" {
   region = "us-east-2"
+
+  default_tags {
+    tags = {
+      HashiCorpLearnTutorial = "no-code-provisioning"
+    }
+  }
 }
 
 provider "random" {}
@@ -13,7 +19,7 @@ resource "random_pet" "random" {}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.77.0"
+  version = "5.19.0"
 
   name                 = "${random_pet.random.id}-education"
   cidr                 = "10.0.0.0/16"
@@ -49,19 +55,19 @@ resource "aws_security_group" "rds" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "${random_pet.random.id}-education_rds"
-  }
 }
 
 resource "aws_db_parameter_group" "education" {
   name   = "${random_pet.random.id}-education"
-  family = "postgres15"
+  family = "postgres16"
 
   parameter {
     name  = "log_connections"
     value = "1"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -69,8 +75,9 @@ resource "aws_db_instance" "education" {
   identifier             = "${var.db_name}-${random_pet.random.id}"
   instance_class         = "db.t3.micro"
   allocated_storage      = 5
+  apply_immediately      = true
   engine                 = "postgres"
-  engine_version         = "15.6"
+  engine_version         = "16"
   username               = var.db_username
   password               = var.db_password
   db_subnet_group_name   = aws_db_subnet_group.education.name
@@ -79,3 +86,4 @@ resource "aws_db_instance" "education" {
   publicly_accessible    = true
   skip_final_snapshot    = true
 }
+
